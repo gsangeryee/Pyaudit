@@ -10,10 +10,12 @@ def main():
 
     # 命令行辅助函数
     
-    # Path
+    # FileName + Path
     contests = {}
+
     root = 'audit'
     file_patterns = "*.sol"
+    
     for path, subdirs, files in os.walk(root):
         for name in files:
             if fnmatch(name, file_patterns):
