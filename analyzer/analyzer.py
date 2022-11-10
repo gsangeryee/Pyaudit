@@ -19,13 +19,7 @@ class Analyzer(object):
                 for line_number, line_code in enumerate(f):
                     line_code = line_code.strip()
                     code_dict[line_code] = line_number
-                    """
-                    for rule in rules:
-                        rule_pattern = rule['pattern']
-                        x = re.findall(rule_pattern, line_code)
-                        if len(x) > 0:
-                            print(x)
-                    """
+                    
             
             # read whole contract file
             code = ""
@@ -46,10 +40,5 @@ class Analyzer(object):
 
         pass
     
-    def analyze_file(self,file,rules):
-        
-        findings = {}
-
-        pass
 
 

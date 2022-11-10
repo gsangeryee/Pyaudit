@@ -1,0 +1,18 @@
+{
+  "RuleName": "Low Risk & Non-Critical",
+  "Serverity": 1,
+  "Rules": [
+    {
+      "Identifier": "1",
+      "Title": "Test Rule",
+      "Description": "Test Rule Description",
+      "Pattern": "Test Rule Pattern"
+    },
+    {
+      "Identifier": "2",
+      "Title": "Test Rule 2",
+      "Description": "Test Rule Description 2",
+      "Pattern": "Test Rule Pattern 2"
+    }
+  ]
+}

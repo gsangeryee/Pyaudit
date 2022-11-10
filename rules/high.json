@@ -1,0 +1,18 @@
+{
+  "rule_name": "High Risk Findings",
+  "serverity": 1,
+  "rules": [
+    {
+      "identifier": "1",
+      "title": "Test Rule",
+      "description": "Test Rule Description",
+      "pattern": "Test Rule Pattern"
+    },
+    {
+      "identifier": "2",
+      "title": "Test Rule 2",
+      "description": "Test Rule Description 2",
+      "pattern": "Test Rule Pattern 2"
+    }
+  ]
+}
