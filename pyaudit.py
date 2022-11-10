@@ -1,52 +1,62 @@
 import os
 from fnmatch import fnmatch
 import re
+import json
+import argparse
+from enum import Enum
+from analyzer.analyzer import Analyzer
 
 
-def main():
-    # 解析命令行参数
-
-    # 运行分析器，生成分析报告
-
-    # 命令行辅助函数
+def main(contest, serverity_level):
     
-    # FileName + Path
-    contests = {}
+    # Get Contest contracts files path
+    contest_paths = {}
 
-    root = 'audit'
+    contest_root = 'audit' + os.sep + contest + os.sep
     file_patterns = "*.sol"
-    
-    for path, subdirs, files in os.walk(root):
+
+    for path, subdirs, files in os.walk(contest_root):
         for name in files:
             if fnmatch(name, file_patterns):
-                contests[name] = os.path.join(path, name)
-
-    for name, path in contests.items():
-        print(name, path)
-
-    code_dict = {}
-    # 按行读取 读取行号
-    try:
-        f = open('audit/2022-05-sturdy/smart-contracts/YieldManager.sol', 'r')
-        for i, line in enumerate(f):
-            code_dict[line] = i
-    finally:
-        f.close()
+                contest_paths[name] = os.path.join(path, name)
     
-    # Read file
-    # 该方式读取全部文件到内存中，不适合大文件
-    code = ""
-    with open('audit/2022-05-sturdy/smart-contracts/YieldManager.sol', 'r') as f:
-        code = f.read()
-        x = re.findall(r'pragma solidity \^*0\.\d*[1-7].\d*;', code)
-        print(x[0])
-        for key, value in code_dict.items():
-            #print("Key: %s, Value: %d" % (key, value))
-            if x[0] in key:
-                print("Line Number: %d" % (value))
-                break
+    # Get Serverity rules from rule json file
+    rules = {}
+    rule_root = 'rules' + os.sep + serverity_level.value.lower() +".json"
+    
+    with open(rule_root) as f:
+        rule = json.load(f)
+        rules = rule['rules']
 
+    Analyzer().analyze(rules, contest_paths)
+
+
+# command line arguments
+class ServerityLevel(Enum):
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW_NC = "LOW_NC"
+    GASOP = "GASOP"
+
+
+    def __str__(self):
+        return self.value
+        
+if __name__ == "__main__":
+    # main()
+    parser = argparse.ArgumentParser(description='Run PyAudit.')
+    parser.add_argument('-c', '--contest', help='Contest Path', type=str, required=True)
+    parser.add_argument('-l', '--serverity-level', choices=list(ServerityLevel), \
+                        help='Choice Serverity level', type=ServerityLevel, required=True)
+    args = parser.parse_args()
+    contest = ""
+    serverity_level = ""
+    if args.contest != None:
+        contest = args.contest
+    if args.serverity_level != None:
+        serverity_level = args.serverity_level
+
+    main(contest, serverity_level)
         
 
-if __name__ == "__main__":
-    main()
+    
