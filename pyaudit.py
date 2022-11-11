@@ -4,10 +4,9 @@ import re
 import json
 import argparse
 from enum import Enum
-from analyzer.analyzer import Analyzer
+from analyzer.report import Report
 
-
-def main(contest, serverity_level):
+def main(contest, serverity_level,base_url):
     
     # Get Contest contracts files path
     contest_paths = {}
@@ -28,12 +27,13 @@ def main(contest, serverity_level):
         rule = json.load(f)
         rules = rule['rules']
 
-    Analyzer().analyze(serverity_level.value, rules, contest_paths)
+    
 
     # Write report to file with Markdown format
-    markdown_report = "# " + serverity_level.value + "\n"
-    markdown_report += "## This is a Audit Test \n"
+    markdown_report = Report().get_reports(serverity_level, rules, contest_paths, base_url)
+    
     repot_file ='audit' + os.sep + contest + "_" +  serverity_level.value.lower()  + ".md"
+    
     with open(repot_file, 'w') as f:
         f.write(markdown_report)
         f.close()
@@ -56,15 +56,19 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--contest', help='Contest Path', type=str, required=True)
     parser.add_argument('-l', '--serverity-level', choices=list(ServerityLevel), \
                         help='Choice Serverity level', type=ServerityLevel, required=True)
+    parser.add_argument('-u', '--url', help='base url', type=str, required=True)
     args = parser.parse_args()
     contest = ""
     serverity_level = ""
+    base_url = ""
     if args.contest != None:
         contest = args.contest
     if args.serverity_level != None:
         serverity_level = args.serverity_level
+    if args.url != None:
+        base_url = args.url
 
-    main(contest, serverity_level)
+    main(contest, serverity_level, base_url)
         
 
     

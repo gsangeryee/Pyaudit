@@ -16,13 +16,15 @@ class Analyzer(object):
 
 
         file_analyzed_list = []
-        findings_per_issue_list = []
+        findings_per_rule_list = []
         
         for rule in rules:
-            findings_per_issue_dict = {}
+            findings_per_rule_dict = {}
             
             findings_list = []
-            findings_per_issue_dict['issue_identifier'] = rule['identifier']
+            findings_per_rule_dict['rule_identifier'] = rule['identifier']
+            findings_per_rule_dict['rule_title'] = rule['title']
+            findings_per_rule_dict['rule_description'] = rule['description']
 
             for file_name, path in paths.items():
                 
@@ -49,26 +51,24 @@ class Analyzer(object):
                     rule_regex = re.compile(pattern)
                     findings =rule_regex.findall(code)
                     #print("Pattern:",pattern)
-                    loop1 = 0
+                    
                     if len(findings) > 0:
                         for finding in findings:
                             finding_dict = {}
-                            loop1 += 1
-                            print("loop1:",loop1)
+                            
                             finding_dict['file_name'] = file_name
                             finding_dict['line_number'] = code_dict[finding.strip()]
                             finding_dict['line_code'] = finding.strip()
                             findings_list.append(finding_dict)
-                            print("finding_dict:",finding_dict)
-                            print("finding_list:",findings_list)
+                            
                     
-            findings_per_issue_dict['findings'] = findings_list
-            findings_per_issue_list.append(findings_per_issue_dict)
+            findings_per_rule_dict['findings'] = findings_list
+            findings_per_rule_list.append(findings_per_rule_dict)
                     
                             
         report['files_analyzed'] = file_analyzed_list 
-        report['findings_per_issue'] = findings_per_issue_list
-        print(report)
+        report['findings_per_rule'] = findings_per_rule_list
+        
 
         return report
     
