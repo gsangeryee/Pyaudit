@@ -1,18 +1,73 @@
 {
-  "RuleName": "Low Risk & Non-Critical",
-  "Serverity": 1,
-  "Rules": [
+  "serverity": "GASOP",
+  "files_analyzed": [
+    "audit/2022-05-sturdy/smart-contracts/YieldManager.sol",
+    "audit/2022-05-sturdy/smart-contracts/GeneralVault.sol",
+    "audit/2022-05-sturdy/smart-contracts/LidoVault.sol",
+    "audit/2022-05-sturdy/smart-contracts/YieldManager.sol",
+    "audit/2022-05-sturdy/smart-contracts/GeneralVault.sol",
+    "audit/2022-05-sturdy/smart-contracts/LidoVault.sol"
+  ],
+  "findings_per_issue": [
     {
-      "Identifier": "1",
-      "Title": "Test Rule",
-      "Description": "Test Rule Description",
-      "Pattern": "Test Rule Pattern"
+      "issue_identifier": "[G-001]",
+      "findings": [
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 63,
+          "line_code": "function setExchangeToken(address _token) external onlyAdmin {"
+        },
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 72,
+          "line_code": "function registerAsset(address _asset) external onlyAdmin {"
+        },
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 95,
+          "line_code": ") external onlyAdmin {"
+        },
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 117,
+          "line_code": "function distributeYield(uint256 _offset, uint256 _count) external onlyAdmin {"
+        },
+        {
+          "file_name": "GeneralVault.sol",
+          "line_number": 164,
+          "line_code": "function setTreasuryInfo(address _treasury, uint256 _fee) external onlyAdmin {"
+        },
+        {
+          "file_name": "LidoVault.sol",
+          "line_number": 29,
+          "line_code": "function processYield() external override onlyAdmin {"
+        }
+      ]
     },
     {
-      "Identifier": "2",
-      "Title": "Test Rule 2",
-      "Description": "Test Rule Description 2",
-      "Pattern": "Test Rule Pattern 2"
+      "issue_identifier": "[G-002]",
+      "findings": [
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 119,
+          "line_code": "for (uint256 i = 0; i < _count; i++) {"
+        },
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 129,
+          "line_code": "for (uint256 i = 0; i < assetYields.length; i++) {"
+        },
+        {
+          "file_name": "YieldManager.sol",
+          "line_number": 155,
+          "line_code": "for (uint256 i = 0; i < length; i++) {"
+        },
+        {
+          "file_name": "GeneralVault.sol",
+          "line_number": 217,
+          "line_code": "for (uint256 i = 0; i < length; i++) {"
+        }
+      ]
     }
   ]
 }

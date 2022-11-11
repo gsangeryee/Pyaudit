@@ -133,5 +133,6 @@ dmypy.json
 audit/
 design.md
 images/design.gliffy
-# rules/
 .idea/
+rules/
+

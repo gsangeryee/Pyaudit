@@ -1,18 +1,47 @@
 {
-  "RuleName": "High & Medium Risk Findings",
-  "Serverity": 1,
-  "Rules": [
+  "Severity": "GASOP",
+  "FilesAnalyzed": [
+    "audit/2022-05-sturdy/smart-contracts/CollateralAdapter.sol",
+    "audit/2022-05-sturdy/smart-contracts/ConvexCurveLPVault.sol",
+    "audit/2022-05-sturdy/smart-contracts/GeneralVault.sol",
+    "audit/2022-05-sturdy/smart-contracts/LidaoVault.sol",
+    "audit/2022-05-sturdy/smart-contracts/YieldManager.sol"
+  ],
+  "FindingsPerIssue": [
     {
-      "Identifier": "1",
-      "Title": "Test Rule",
-      "Description": "Test Rule Description",
-      "Pattern": "Test Rule Pattern"
+      "IssueIdentifier": "[G-001]",
+      "Findings": [
+        {
+          "File": "CollateralAdapter.sol",
+          "LineNumber": 123,
+          "LineCode": "modifier onlyAdmin() {"
+        },
+        {
+          "File": "CollateralAdapter.sol",
+          "LineNumber": 123,
+          "LineCode": "modifier onlyAdmin() {"
+        },
+        {
+          "File": "LidaoVault.sol",
+          "LineNumber": 123,
+          "LineCode": "modifier onlyAdmin() {"
+        }
+      ]
     },
     {
-      "Identifier": "2",
-      "Title": "Test Rule 2",
-      "Description": "Test Rule Description 2",
-      "Pattern": "Test Rule Pattern 2"
+      "IssueIdentifier": "[G-002]",
+      "Findings": [
+        {
+          "File": "audit/2022-05-sturdy/smart-contracts/CollateralAdapter.sol",
+          "LineNumber": 123,
+          "LineCode": "modifier onlyAdmin() {"
+        },
+        {
+          "File": "audit/2022-05-sturdy/smart-contracts/CollateralAdapter.sol",
+          "LineNumber": 123,
+          "LineCode": "modifier onlyAdmin() {"
+        }
+      ]
     }
   ]
 }

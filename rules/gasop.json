@@ -7,6 +7,12 @@
       "title": "Functions guaranteed to revert when called by normal users can be marked payable",
       "description": "If a function modifier such as onlyOwner is used, the function will revert if a normal user tries to pay the function. Marking the function as payable will lower the gas cost for legitimate callers because the compiler will not include checks for whether a payment was provided.",
       "pattern": ".*external override only[a-z,A-z]*.*|.*external only[a-z,A-z]*.*|.*virtual only[a-z,A-z]*.*|.*public only[a-z,A-z]*.*"
+    },
+    {
+      "identifier": "[G-002]",
+      "title": "Don't Initialize Variables with Default Value",
+      "description": "If a function modifier such as onlyOwner is used, the function will revert if a normal user tries to pay the function. Marking the function as payable will lower the gas cost for legitimate callers because the compiler will not include checks for whether a payment was provided.",
+      "pattern": ".*uint[0-9]*[\\x20][a-z,A-Z,0-9]*.?=.?0;.*|.*bool.[a-z,A-Z,0-9]*.?=.?false;.*"
     }
   ]
 }

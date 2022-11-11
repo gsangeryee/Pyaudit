@@ -28,7 +28,15 @@ def main(contest, serverity_level):
         rule = json.load(f)
         rules = rule['rules']
 
-    Analyzer().analyze(rules, contest_paths)
+    Analyzer().analyze(serverity_level.value, rules, contest_paths)
+
+    # Write report to file with Markdown format
+    markdown_report = "# " + serverity_level.value + "\n"
+    markdown_report += "## This is a Audit Test \n"
+    repot_file ='audit' + os.sep + contest + "_" +  serverity_level.value.lower()  + ".md"
+    with open(repot_file, 'w') as f:
+        f.write(markdown_report)
+        f.close()
 
 
 # command line arguments
