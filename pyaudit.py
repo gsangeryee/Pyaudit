@@ -32,7 +32,7 @@ def main(contest, serverity_level,base_url):
     # Write report to file with Markdown format
     markdown_report = Report().get_reports(serverity_level, rules, contest_paths, base_url)
     
-    repot_file ='audit' + os.sep + contest + "_" +  serverity_level.value.lower()  + ".md"
+    repot_file ='audit' + os.sep + serverity_level.value.lower() +  "_" + contest + ".md"
     
     with open(repot_file, 'w') as f:
         f.write(markdown_report)

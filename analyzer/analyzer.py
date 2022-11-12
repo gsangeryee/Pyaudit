@@ -29,8 +29,6 @@ class Analyzer(object):
 
             for file_name, path in paths.items():
                 
-                
-
                 file_analyzed_list.append(path)
                 
                 #self.analyze_file(path,rules)
@@ -70,7 +68,6 @@ class Analyzer(object):
         report['files_analyzed'] = file_analyzed_list 
         report['findings_per_rule'] = findings_per_rule_list
         
-
         return report
     
 
