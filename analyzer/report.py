@@ -7,7 +7,8 @@ class Report(object):
         pass
 
     def get_reports(self,serverity_level,rules,contest_paths,base_url):
-        print("url:",base_url)
+        
+        
         markdown_report_list = []
         grid_table_list = []
 
@@ -25,15 +26,18 @@ class Report(object):
 
         # Report File list
         markdown_report_list.append("## Files Analyzed\n")
+
         for file in fiels_analyzed_list:
-            markdown_report_list.append("- " + file + "\n")
+            # file[6:] is to remove the "audit/" folder from the path
+            markdown_report_list.append("- " + file[6:] + "\n")
+
         markdown_report_list.append("\n")
         markdown_report_list.append("Total:"+ str(len(fiels_analyzed_list)) + "\n")
         markdown_report_list.append("\n")
 
         # Report Grid Table For low_nc And gasop
         if serverity_level == "LOW_NC" or serverity_level == "GASOP":
-            grid_table_list.append("| |rule|Instances|\n")
+            grid_table_list.append("| |Issue|Instances|\n")
             grid_table_list.append("|-|:-|:-:|\n")
         
         # Report Findings
@@ -42,6 +46,7 @@ class Report(object):
             rule_identifier = findings_per_rule['rule_identifier']
             rule_title = findings_per_rule['rule_title']
             rule_description = findings_per_rule['rule_description']
+            rule_recommendation = findings_per_rule['rule_recommendation']
             
             findings_list = findings_per_rule['findings']
             if len(findings_list) == 0:
@@ -71,11 +76,12 @@ class Report(object):
             for finding in findings_list:
                 markdown_report_list.append(self.finding_details(finding,base_url))
             markdown_report_list.append("\n")
+
+            # Recommendation
+            markdown_report_list.append("### Recommendation\n")
+            markdown_report_list.append(rule_recommendation + "\n")
             markdown_report_list.append("\n")
 
-
-            # TODO: Added remediation
-            # markdown_report_list.append("### Remediation\n")
         markdown_report_list.append("".join(grid_table_list))
 
         return ''.join(markdown_report_list)
@@ -87,7 +93,7 @@ class Report(object):
         line_number = finding['line_number']
         line_code = finding['line_code']
 
-        finding_details_list.append("["+base_url+"/"+file_name+"#L"+str(line_number)+"]("+base_url+"/"+file_name+"#L"+str(line_number)+")\n")
+        finding_details_list.append("["+file_name+"#L"+str(line_number)+"]("+base_url+"/"+file_name+"#L"+str(line_number)+")\n")
         finding_details_list.append("```solidity\n")
         finding_details_list.append(str(line_number) + ":    ")
         finding_details_list.append(line_code + "\n")

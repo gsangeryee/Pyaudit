@@ -25,6 +25,7 @@ class Analyzer(object):
             findings_per_rule_dict['rule_identifier'] = rule['identifier']
             findings_per_rule_dict['rule_title'] = rule['title']
             findings_per_rule_dict['rule_description'] = rule['description']
+            findings_per_rule_dict['rule_recommendation'] = rule['recommendation']
 
             for file_name, path in paths.items():
                 
