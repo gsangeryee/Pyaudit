@@ -92,10 +92,21 @@ class Report(object):
         file_name = finding['file_name']
         line_number = finding['line_number']
         line_code = finding['line_code']
-
+        
         finding_details_list.append("["+file_name+"#L"+str(line_number)+"]("+base_url+"/"+file_name+"#L"+str(line_number)+")\n")
         finding_details_list.append("```solidity\n")
-        finding_details_list.append(str(line_number) + ":    ")
-        finding_details_list.append(line_code + "\n")
+        multi_line = line_code.splitlines(False)
+        # Multi line code
+        if len(multi_line) > 1:
+            head, sep, tail = line_number.partition('-')
+            start_line_number = int(head)
+            for line in multi_line:
+                finding_details_list.append(str(start_line_number) + ":    ")
+                finding_details_list.append(line + "\n")
+                start_line_number = start_line_number + 1
+        else:
+            finding_details_list.append(str(line_number) + ":    ")
+            finding_details_list.append(line_code + "\n")
+
         finding_details_list.append("```\n")
         return ''.join(finding_details_list)
