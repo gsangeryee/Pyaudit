@@ -11,9 +11,9 @@ class Analyzer(object):
     # Return a report
     """
         Output report format:
-        {
+        { => store in report{} dirctioary
             "serverity": "GASOP",
-            "files_analyzed": [
+            "files_analyzed": [ => store in file_analyzed_list set
                 "audit/2022-05-sturdy/smart-contracts/YieldManager.sol",
                 "audit/2022-05-sturdy/smart-contracts/GeneralVault.sol",
                 "audit/2022-05-sturdy/smart-contracts/LidoVault.sol",
@@ -21,11 +21,11 @@ class Analyzer(object):
                 "audit/2022-05-sturdy/smart-contracts/GeneralVault.sol",
                 "audit/2022-05-sturdy/smart-contracts/LidoVault.sol"
             ],
-            "findings_per_issue": [
-                {
+            "findings_per_issue": [ => store in findings_per_rule_list list, each serverity repot has a findings_per_rule_list
+                { ==> store in findings_per_rule_dict dictionary, each rule has a findings_per_rule_dict
                 "issue_identifier": "[G-001]",
-                "findings": [
-                    {
+                "findings": [ => store in findings_list list, each rule has a findings_list
+                    { => store in finding_dict dictionary, each finding has a finding_dict
                     "file_name": "YieldManager.sol",
                     "line_number": 63,
                     "line_code": "function setExchangeToken(address _token) external onlyAdmin {"
@@ -85,7 +85,8 @@ class Analyzer(object):
             ]
         }
         """
-        
+
+
     def analyze(self,serverity,rules,paths):
         #print("rules:",rules)   
         # Dicitonary For Report    
@@ -94,11 +95,12 @@ class Analyzer(object):
         #Add serverity level to report
         report['serverity'] = serverity
         
-        file_analyzed_list = set([]) # list of files analyzed
+        file_analyzed_list = set([]) # list of smart contests
         findings_per_rule_list = [] # list of findings per rule
 
         # Loop through all the rules
         for rule in rules:
+            
             findings_per_rule_dict = {} 
             findings_list = []
 
@@ -111,30 +113,73 @@ class Analyzer(object):
             
             # Loop through all the contract files
             for file_name, path in paths.items():
-                #print("file_name:",file_name)
-                
-                #file_analyzed_list.append(path)
                 file_analyzed_list.add(path)
                 
                 # create line-code dictionary
-                code_dict = {} # key: line code, value: line number
-                with open(path,'r') as f:
-                    for line_number, line_code in enumerate(f):
-                        # Get rid of the comments (//) in end of the code
-                        # There are two ways to get rid of the comments
-                        # Way 1: line_code = line_code.split('//')[0]  
-                        head, sep, tail = line_code.partition('//') # Way 2
-                        #print("head:",head)
-                        line_code = head.strip()
-                        code_dict[line_code] = line_number + 1 # line_number starts from 0, so add 1
-
+                code_dict = self.create_line_code_dict(path)
+                
                 # read whole contract file
                 code = ""
                 with open(path, 'r') as f:
-                    code = f.read()
-            
+                    code = f.read() # read whole contract file
                     pattern = rule['pattern']
                     rule_regex = re.compile(pattern)
+                                            
+                    # Using normal regex and .findall() method
+                    if pattern_type == "Normal":
+                        
+                        findings = rule_regex.findall(code)        
+                        if len(findings) > 0:                            
+                            for finding in findings:
+                                finding_dict={} # dictionary for finding, initialize must in the loop
+                                finding_dict = self.add_finding_item(finding,code_dict,file_name)
+                                findings_list.append(finding_dict)
+                                
+
+                    # Using Multi-lines matching regex and .findall() method
+                    if pattern_type == "Multi":
+                        
+                        findings = rule_regex.findall(code)
+                        if len(findings) > 0:
+                            for finding in findings:
+                                finding_dict={} # dictionary for finding, initialize must in the loop
+                                # One Line
+                                if len(finding.splitlines()) == 1:
+                                    finding_dict = self.add_finding_item(finding,code_dict,file_name)
+                                    findings_list.append(finding_dict)
+                                    
+                                # Multiple Lines
+                                if len(finding.splitlines()) > 1:
+                                    # Cause some cases, the first line is only require keyword, so we need to skip it 
+                                    second_line = finding.splitlines(False)[1]
+                                    back_number = 1
+                                    # skip the seconde line if it is a blank line
+                                    if second_line.strip() == "":
+                                        second_line = finding.splitlines(False)[2] # Get the third line
+                                        back_number = 2
+                                        # skip the third line,using the fourth line  if it is a comment line
+                                        if second_line.strip().find('//') == 0:
+                                            second_line = finding.splitlines(False)[3]
+                                            back_number = 3
+                                    else:
+                                        # skip the seconde line,using the third line  if it is a comment line
+                                        if second_line.strip().find('//') == 0:
+                                            second_line = finding.splitlines(False)[2]
+                                            back_number = 2
+
+                                    head, sep, tail = second_line.partition('//')
+                                    second_line = head.strip()
+                                    second_line_number = code_dict[second_line]
+                                    first_line_number = second_line_number - back_number
+                                    
+                                    finding_dict['file_name'] = file_name
+                                    # Line number for Multi-lines
+                                    finding_dict['line_number'] = str(first_line_number)+"-"+str(first_line_number+len(finding.splitlines(False))-1)
+                                    #print("finding_dict['line_number']:",str(first_line_number)+"-"+str(first_line_number+len(finding.splitlines(False))-1))
+                                    finding_dict['line_code'] = finding
+                                    #print("finding_dict['line_code']:",finding)
+                                    findings_list.append(finding_dict) 
+                                    
 
                     # Using group regex model and .search() method
                     if pattern_type == "Sub":
@@ -143,9 +188,12 @@ class Analyzer(object):
                         sub_finding_list = rule_regex.findall(code)
                         
                         if len(sub_finding_list) > 0:
-                            print("rule_regex",rule_regex)
+                            
                             for sub_finding in sub_finding_list:
                                 #sub_pattern = '.*\(.*,[\x20]'+sub_finding+'\);|.*=[\x20]'+sub_finding+'[;|,|)].*'
+                                sub_finding = sub_finding.replace('(','\(')
+                                sub_finding = sub_finding.replace(')','\)')
+                                
                                 sub_pattern = sub_pattern_string.replace('SUB_PATTERN',sub_finding)
                                 #print("sub_pattern:",sub_pattern)
                                 sub_rule_regex = re.compile(sub_pattern)
@@ -153,91 +201,45 @@ class Analyzer(object):
                                 #print("sub_findings:",sub_findings)
                                 if len(sub_findings) > 0:
                                     for sub_find in sub_findings:
-                                        #print("sub_find:",sub_find)
-                                        head, sep, tail = sub_find.partition('//')
-                                        sub_find = head.strip()
-                                        #print("sub_find:",sub_find)
-                                        line_number = code_dict[sub_find]
-                                        #print("line_number:",line_number)
-                                        findings_dict = {}
-                                        findings_dict['file_name'] = file_name
-                                        findings_dict['line_number'] = str(line_number)
-                                        findings_dict['line_code'] = sub_find
-                                        findings_list.append(findings_dict)
-                                            
-                    # Using normal regex and .findall() method
-                    if pattern_type == "Normal":
-                        findings = rule_regex.findall(code)        
-                        if len(findings) > 0:
-                            print("rule_regex",rule_regex)
-                            for finding in findings:
-                                finding_dict = {}
-                                head, sep, tail = finding.partition('//')
-                                finding = head.strip()
-                                # Add finding information
-                                finding_dict['file_name'] = file_name
-                                finding_dict['line_number'] = str(code_dict[finding])
-                                finding_dict['line_code'] = finding
-                                findings_list.append(finding_dict)
-                    
-                    # Using Multi-lines matching regex and .findall() method
-                    if pattern_type == "Multi":
-                        findings = rule_regex.findall(code)
-                        if len(findings) > 0:
-                            print("rule_regex",rule_regex)
-                            for finding in findings:
-                                
-                                finding_dict = {}
-                                # One Line
-                                if len(finding.splitlines()) == 1:
-                                    head, sep, tail = finding.partition('//')
-                                    finding = head.strip()
-                                    # Add finding information
-                                    finding_dict['file_name'] = file_name
-                                    finding_dict['line_number'] = str(code_dict[finding])
-                                    finding_dict['line_code'] = finding
-                                    findings_list.append(finding_dict)
-                                
-                                # Multiple Lines
-                                if len(finding.splitlines()) > 1:
-                                    # Cause some cases, the first line is only require keyword, so we need to skip it 
-                                    second_line = finding.splitlines(False)[1]
-                                    head, sep, tail = second_line.partition('//')
-                                    second_line = head.strip()
-                                    second_line_number = code_dict[second_line]
-                                    first_line_number = second_line_number - 1
-                                    
-                                    finding_dict['file_name'] = file_name
-                                    finding_dict['line_number'] = str(first_line_number)+"-"+str(first_line_number+len(finding.splitlines(False))-1)
-                                    finding_dict['line_code'] = finding
-                                    findings_list.append(finding_dict)
-                                    #print("finding_dict:",finding_dict)
+                                        sub_finding_dict = {} # dictionary for finding, initialize must in the loop
+                                        sub_finding_dict = self.add_finding_item(sub_find,code_dict,file_name)
+                                        findings_list.append(sub_finding_dict) 
                                         
-                                #for finding_by_line in finding.splitlines():
-                                """
-                                # split the finding into lines and get the last part of the finding
-                                finding = finding.splitlines(False)[-1]
-                                finding_dict = {}
-                                head, sep, tail = finding.partition('//')
-                                finding = head.strip()
-                                # Add finding information
-                                finding_dict['file_name'] = file_name
-                                finding_dict['line_number'] = code_dict[finding]
-                                finding_dict['line_code'] = finding
-                                findings_list.append(finding_dict)
-                                """
-                            
+                                               
+                  
             # Add All findings of this rule from all files to findings_per_rule_dict     
             findings_per_rule_dict['findings'] = findings_list
             # Add a findings per rule to findings_per_rule_list
             findings_per_rule_list.append(findings_per_rule_dict)
                     
-                            
+        # End of for loop for all rules
+                         
         report['files_analyzed'] = file_analyzed_list 
         # Add all findings for all rule to report
         report['findings_per_rule'] = findings_per_rule_list
+        #print("report:",report)
         
         return report
     
-
+    def add_finding_item(self,finding,code_dict,file_name):
+        _findying_dict = {}
+        head, sep, tail = finding.partition('//')
+        finding = head.strip()
+        line_number = code_dict[finding]
+        # Add finding information
+        _findying_dict['file_name'] = file_name
+        _findying_dict['line_number'] = str(line_number)
+        _findying_dict['line_code'] = finding
+        return _findying_dict
+    
+    def create_line_code_dict(self,path):
+        _code_dict = {}
+        with open(path, 'r') as f:
+            for line_number, line_code in enumerate(f):
+                #print("line_number:",line_number)
+                #print("line_code:",line_code)
+                head, sep, tail = line_code.partition('//')
+                line_code = head.strip()
+                _code_dict[line_code] = line_number+1
+        return _code_dict
 
