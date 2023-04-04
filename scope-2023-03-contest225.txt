@@ -1,0 +1,6 @@
+contracts/OfferController.sol
+contracts/lib/Errors.sol
+contracts/lib/Structs.sol
+contracts/lib/ExchangeStructs.sol
+contracts/lib/Signatures.sol
+contracts/Core.sol
